@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maya Glass & Sticker Studio</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=Noto+Serif+Ethiopic:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#0a0d11;
+    --bg-panel:rgba(255,255,255,0.045);
+    --bg-panel-hover:rgba(255,255,255,0.07);
+    --glass-border:rgba(255,255,255,0.09);
+    --ice:#9fd7e0;
+    --gold:#cda44e;
+    --gold-soft:#e6c98a;
+    --white-soft:#f3f1ea;
+    --text-primary:#edf1f3;
+    --text-muted:#8993a2;
+    --text-faint:#5c6474;
+  }
+
+  *{box-sizing:border-box;}
+
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(159,215,224,0.08), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 10%, rgba(205,164,78,0.07), transparent 60%),
+      var(--bg-deep);
+    color:var(--text-primary);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    padding-bottom:60px;
+  }
+
+  .app-shell{max-width:520px;margin:0 auto;padding:28px 18px 10px;}
+
+  /* ---------- Header ---------- */
+  .brand-row{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px;}
+  .brand-name{
+    font-family:'Syne',sans-serif;
+    font-weight:700;
+    font-size:2rem;
+    line-height:1.05;
+    letter-spacing:-0.01em;
+  }
+  .brand-name .accent{
+    font-style:italic;
+    font-weight:600;
+    background:linear-gradient(120deg, var(--ice), var(--gold-soft));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .brand-amharic{
+    font-family:'Noto Serif Ethiopic',serif;
+    font-size:0.95rem;
+    color:var(--text-muted);
+    margin-top:2px;
+  }
+  .tagline{
+    font-size:0.68rem;
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    color:var(--text-faint);
+    margin-top:10px;
+    font-weight:600;
+  }
+
+  .lang-toggle{
+    display:flex;
+    background:var(--bg-panel);
+    border:1px solid var(--glass-border);
+    border-radius:12px;
+    padding:3px;
+    flex-shrink:0;
+    backdrop-filter:blur(10px);
+  }
+  .lang-toggle button{
+    border:none;
+    background:transparent;
+    color:var(--text-muted);
+    font-family:'Inter',sans-serif;
+    font-weight:700;
+    font-size:0.78rem;
+    padding:7px 14px;
+    border-radius:9px;
+    transition:.2s;
+  }
+  .lang-toggle button.active{
+    background:linear-gradient(120deg, var(--ice), #cfeef2);
+    color:#0a0d11;
+  }
+
+  /* ---------- Search ---------- */
+  .search-wrap{margin-top:22px;position:relative;}
+  .search-wrap input{
+    width:100%;
+    background:var(--bg-panel);
+    border:1px solid var(--glass-border);
+    border-radius:16px;
+    padding:14px 46px 14px 18px;
+    color:var(--text-primary);
+    font-size:0.92rem;
+    backdrop-filter:blur(10px);
+  }
+  .search-wrap input::placeholder{color:var(--text-faint);}
+  .search-wrap input:focus{
+    outline:none;
+    border-color:rgba(159,215,224,0.45);
+    box-shadow:0 0 0 3px rgba(159,215,224,0.12);
+  }
+  .search-wrap svg{position:absolute;right:16px;top:50%;transform:translateY(-50%);opacity:0.55;}
+
+  /* ---------- Category chips ---------- */
+  .cat-scroll{
+    display:flex;
+    gap:16px;
+    overflow-x:auto;
+    padding:26px 2px 10px;
+    scrollbar-width:none;
+  }
+  .cat-scroll::-webkit-scrollbar{display:none;}
+  .cat-item{flex-shrink:0;text-align:center;cursor:pointer;width:74px;}
+  .cat-swatch{
+    width:66px;height:66px;
+    border-radius:20px;
+    border:1px solid var(--glass-border);
+    display:flex;align-items:center;justify-content:center;
+    margin:0 auto 8px;
+    transition:.2s;
+    position:relative;
+    overflow:hidden;
+  }
+  .cat-item.active .cat-swatch{
+    border-color:var(--ice);
+    box-shadow:0 0 0 3px rgba(159,215,224,0.15);
+    transform:translateY(-2px);
+  }
+  .cat-label{font-size:0.72rem;color:var(--text-muted);font-weight:600;}
+  .cat-item.active .cat-label{color:var(--text-primary);}
+
+  .sw-all{background:radial-gradient(circle at 35% 30%, rgba(159,215,224,0.35), rgba(20,24,30,0.6));}
+  .sw-all svg{opacity:0.9;}
+  .sw-frosted{background:linear-gradient(135deg, rgba(255,255,255,0.18), rgba(159,215,224,0.12));backdrop-filter:blur(2px);}
+  .sw-golden{background:linear-gradient(135deg, #a5793a, #e6c98a 55%, #a5793a);}
+  .sw-white{background:linear-gradient(135deg, #dedad0, #f7f5ef);}
+  .sw-black{background:linear-gradient(135deg, #1c1c1f, #050506);}
+  .sw-custom{background:conic-gradient(from 180deg, var(--ice), var(--gold), var(--white-soft), var(--ice));opacity:0.85;}
+
+  /* frost texture overlay */
+  .frost-noise::after{
+    content:"";
+    position:absolute;inset:0;
+    background-image:radial-gradient(rgba(255,255,255,0.5) 1px, transparent 1px);
+    background-size:6px 6px;
+    opacity:0.25;
+  }
+
+  /* ---------- Section headers ---------- */
+  .section-block{margin-top:38px;}
+  .section-head{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+  .section-icon{
+    width:46px;height:46px;border-radius:14px;
+    background:var(--bg-panel);
+    border:1px solid var(--glass-border);
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .section-title{
+    font-family:'Syne',sans-serif;
+    font-weight:700;
+    font-size:1.3rem;
+  }
+  .section-sub{font-size:0.72rem;color:var(--text-faint);letter-spacing:0.04em;}
+
+  /* ---------- Product card w/ sticker-peel signature ---------- */
+  .card-list{display:flex;flex-direction:column;gap:14px;}
+
+  .peel-card{
+    position:relative;
+    display:flex;
+    background:var(--bg-panel);
+    border:1px solid var(--glass-border);
+    border-radius:18px;
+    overflow:hidden;
+    backdrop-filter:blur(10px);
+    transition:.25s ease;
+    cursor:pointer;
+  }
+  .peel-card:hover{
+    background:var(--bg-panel-hover);
+    transform:translateY(-2px);
+    border-color:rgba(255,255,255,0.16);
+  }
+
+  .peel-thumb{
+    width:104px;flex-shrink:0;
+    height:104px;
+    position:relative;
+    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;
+  }
+  .peel-thumb svg{position:relative;z-index:2;opacity:0.92;}
+  .peel-thumb-img{
+    position:relative;
+    z-index:2;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    border-radius:0;
+  }
+
+  .peel-thumb::after{
+    content:"";
+    position:absolute;inset:0;
+    background:radial-gradient(circle at 50% 50%, rgba(0,0,0,0) 0%, rgba(0,0,0,0.18) 100%);
+    opacity:0;
+    transition:.2s;
+    z-index:2;
+  }
+  .peel-thumb:hover::after{opacity:1;}
+
+  /* zoom hint icon */
+  .zoom-hint{
+    position:absolute;bottom:6px;left:6px;
+    width:20px;height:20px;
+    border-radius:7px;
+    background:rgba(10,13,17,0.55);
+    border:1px solid rgba(255,255,255,0.14);
+    display:flex;align-items:center;justify-content:center;
+    z-index:4;
+    opacity:0;
+    transition:.2s;
+  }
+  .peel-thumb:hover .zoom-hint{opacity:1;}
+
+  /* the sticker backing paper, revealed on hover via the peeling corner */
+  .peel-thumb::before{
+    content:"";
+    position:absolute;inset:0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.09) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.09) 1px, transparent 1px);
+    background-size:9px 9px;
+    z-index:1;
+  }
+
+  /* the peeling corner fold itself */
+  .peel-corner{
+    position:absolute;
+    top:0;right:0;
+    width:26px;height:26px;
+    background:linear-gradient(135deg, rgba(255,255,255,0.22), rgba(255,255,255,0.02) 60%);
+    clip-path:polygon(100% 0, 0 0, 100% 100%);
+    transition:.28s ease;
+    z-index:3;
+    box-shadow:-2px 2px 6px rgba(0,0,0,0.35);
+  }
+  .peel-card:hover .peel-corner{
+    width:36px;height:36px;
+    transform:translate(2px,-2px) rotate(2deg);
+  }
+
+  .thumb-frosted{background:linear-gradient(160deg, rgba(159,215,224,0.28), rgba(159,215,224,0.05));}
+  .thumb-golden{background:linear-gradient(160deg, rgba(205,164,78,0.4), rgba(205,164,78,0.08));}
+  .thumb-white{background:linear-gradient(160deg, rgba(243,241,234,0.32), rgba(243,241,234,0.06));}
+  .thumb-black{background:linear-gradient(160deg, rgba(30,30,34,0.9), rgba(10,10,12,0.6));}
+  .thumb-custom{background:linear-gradient(160deg, rgba(159,215,224,0.22), rgba(205,164,78,0.18));}
+
+  .peel-body{
+    flex:1;
+    padding:14px 16px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    min-width:0;
+  }
+  .peel-info{min-width:0;}
+  .peel-name{font-family:'Syne',sans-serif;font-weight:700;font-size:1.02rem;margin-bottom:3px;}
+  .peel-desc{font-size:0.8rem;color:var(--text-muted);line-height:1.35;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:220px;}
+
+  .peel-price{text-align:right;flex-shrink:0;}
+  .price-num{
+    font-family:'Syne',sans-serif;
+    font-weight:700;
+    font-size:1.08rem;
+    color:var(--gold-soft);
+    white-space:nowrap;
+  }
+  .price-unit{font-size:0.65rem;color:var(--text-faint);font-weight:500;margin-left:2px;}
+  .tap-hint{font-size:0.66rem;color:var(--text-faint);margin-top:2px;}
+
+  .badge-popular{
+    display:inline-flex;align-items:center;gap:4px;
+    background:linear-gradient(120deg, var(--gold), var(--gold-soft));
+    color:#1a1408;
+    font-size:0.62rem;
+    font-weight:700;
+    padding:4px 9px;
+    border-radius:20px;
+    margin-top:3px;
+    letter-spacing:0.02em;
+  }
+
+  .badge-quote{
+    display:inline-flex;align-items:center;
+    background:rgba(159,215,224,0.15);
+    color:var(--ice);
+    font-size:0.62rem;
+    font-weight:700;
+    padding:4px 9px;
+    border-radius:20px;
+    margin-top:3px;
+  }
+
+  footer.foot{
+    text-align:center;
+    margin-top:46px;
+    font-size:0.72rem;
+    color:var(--text-faint);
+    letter-spacing:0.05em;
+  }
+  footer.foot span{color:var(--gold-soft);}
+
+  @media (max-width:380px){
+    .peel-desc{max-width:150px;}
+    .brand-name{font-size:1.7rem;}
+  }
+
+  /* ---------- Lightbox modal ---------- */
+  .img-modal{
+    position:fixed;inset:0;
+    z-index:999;
+    display:none;
+    align-items:center;justify-content:center;
+    padding:24px;
+  }
+  .img-modal.open{display:flex;}
+  .img-modal-backdrop{
+    position:absolute;inset:0;
+    background:rgba(6,8,11,0.72);
+    backdrop-filter:blur(6px);
+  }
+  .img-modal-content{
+    position:relative;
+    z-index:2;
+    width:100%;
+    max-width:400px;
+    background:linear-gradient(180deg, rgba(20,24,30,0.96), rgba(12,15,19,0.98));
+    border:1px solid var(--glass-border);
+    border-radius:24px;
+    padding:20px;
+    box-shadow:0 30px 70px rgba(0,0,0,0.55);
+    animation:modalPop .22s ease;
+  }
+  @keyframes modalPop{
+    from{opacity:0;transform:scale(0.94) translateY(8px);}
+    to{opacity:1;transform:scale(1) translateY(0);}
+  }
+  .img-modal-close{
+    position:absolute;
+    top:14px;right:14px;
+    width:34px;height:34px;
+    border-radius:50%;
+    border:1px solid var(--glass-border);
+    background:rgba(255,255,255,0.06);
+    color:var(--text-primary);
+    font-size:1.2rem;
+    line-height:1;
+    display:flex;align-items:center;justify-content:center;
+    z-index:3;
+  }
+  .modal-thumb-large{
+    width:100%;
+    height:250px;
+    border-radius:18px;
+    position:relative;
+    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;
+    border:1px solid var(--glass-border);
+  }
+  .modal-thumb-large::before{
+    content:"";
+    position:absolute;inset:0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px);
+    background-size:14px 14px;
+  }
+  .modal-thumb-large svg{position:relative;z-index:2;}
+  .modal-thumb-large img{
+    position:relative;
+    z-index:2;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+  }
+  .modal-corner{
+    position:absolute;top:0;right:0;
+    width:56px;height:56px;
+    background:linear-gradient(135deg, rgba(255,255,255,0.26), rgba(255,255,255,0.02) 60%);
+    clip-path:polygon(100% 0, 0 0, 100% 100%);
+    box-shadow:-4px 4px 12px rgba(0,0,0,0.4);
+    z-index:3;
+  }
+  .modal-info{padding:18px 4px 2px;}
+  .modal-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1.25rem;margin-bottom:6px;}
+  .modal-desc{font-size:0.85rem;color:var(--text-muted);line-height:1.5;margin-bottom:14px;}
+  .modal-price-row{display:flex;align-items:center;justify-content:space-between;}
+  .modal-price-num{font-family:'Syne',sans-serif;font-weight:700;font-size:1.4rem;color:var(--gold-soft);}
+  .modal-price-unit{font-size:0.72rem;color:var(--text-faint);margin-left:4px;}
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- Header -->
+  <div class="brand-row">
+    <div>
+      <div class="brand-name">Maya <span class="accent">Stickers</span></div>
+      <div class="brand-amharic">ማያ ስቲከር</div>
+    </div>
+    <div class="lang-toggle">
+      <button class="active" data-lang="en">EN</button>
+      <button data-lang="am">አማ</button>
+    </div>
+  </div>
+  <div class="tagline" data-en="Clarity, style & privacy — on every pane" data-am="ግልጽነት፣ ውበት እና ግላዊነት — በእያንዳንዱ መስታወት">Clarity, style &amp; privacy — on every pane</div>
+
+  <!-- Search -->
+  <div class="search-wrap">
+    <input id="searchInput" type="text" placeholder="Search stickers..." data-ph-en="Search stickers..." data-ph-am="ስቲከር ይፈልጉ...">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9fd7e0" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+  </div>
+
+  <!-- Category chips -->
+  <div class="cat-scroll" id="catScroll">
+    <div class="cat-item active" data-filter="all">
+      <div class="cat-swatch sw-all">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#eef1f3" stroke-width="1.6"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8z"/></svg>
+      </div>
+      <div class="cat-label" data-en="All" data-am="ሁሉም">All</div>
+    </div>
+    <div class="cat-item" data-filter="frosted">
+      <div class="cat-swatch sw-frosted"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_8jiBb8J3L983sqDs9e-t3MvKMXHiBdpGZ1UTbWlvsw&s=10" alt="Frosted Wall Panel" loading="lazy"></div>
+      <div class="cat-label" data-en="Frosted" data-am="ፍሮስት">Frosted</div>
+    </div>
+    <div class="cat-item" data-filter="golden">
+      <div class="cat-swatch"><img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5OjcBCgoKDQwNGg8PGjclHyU3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N//AABEIAJQAlAMBIgACEQEDEQH/xAAbAAABBQEBAAAAAAAAAAAAAAAEAAECAwUGB//EAEQQAAIBAwMCAgcECAMFCQAAAAECAwAEEQUSITFBE1EGFCJhcYGRIzKx0RVCUnKCocHhFpOiByRTktNDYmODlLLS8PH/xAAaAQADAQEBAQAAAAAAAAAAAAABAgMABAUG/8QAJREAAgICAgEFAAMBAAAAAAAAAAECEQMhEjFBBBMiUWEjcYEF/9oADAMBAAIRAxEAPwDV9DvSL1XRrqDxbKPM8zDe53k4+I8sV516aqpvvHUqBhYyM85C5q5bKIS+IYlLg7t3v86xtf8AFN0ZJGY7+QCcgEdR+FWm1WkLFSt2zOBph1I+dRzT7sEHyqDKBaNkVOqY24qe6gOTAzUkAKjHSoKanGSuFwNtK3s1CUATj92tNAoQY5cnz4ArMz9sP3at2t5itYKD7jGyMHGcdmz/APlBscE06Qsw+8q8edPNayRjLEYprMRD4WopKsZBOc+QpeAzZCHJ7VQY/axnNYATJPvIwAo8hSN6IVPJxVDQiFQuWYnOBnkc96nBZiRgZHAOemfw45rMFDW8xzI0mRuIwAPxo26utiIiZG6Nd3kRgcfyp4rCIqxdmB5CqTg8U7W0UvqoIfLR4+jH+1PHpitbQG90CeEx86VR8JOPvU1G2Cj1Cf0as00M3u2fxRaxyktdjGWX9kJ59s/Osq+9Fk1X0Kku7S2Bv1LyI6u7FgjPkBANvIXHHfBrR1T0x0q50U2dlNJI80McMbAZX2Gy2SGIHBoDQvTjT9P06Czmsb6aWAuJJEii2sxkLDBZskYPeq0nonJyXR5TuzgjoRxUwciibvTrn1qQRQOyMdybV4APOKoa1uUmWJo8Mex61B6LolG3Aq3dVa28oJ4Axyc9qmI2x95f60ljEw3NW7qHRCXwTweM4retvR+S4srS4F1AguZjCA5IxjqTxwKVumhkzJjb/eB8P61oCVV3gLywPTnFRvNLSxTxZLndIs7wGIRsrKVAJJ3ADoy+/n3Vp6XpshR7gSxEC0W4wd3CkMTnjjGwgseMlfOs2AxwxDZHXz71dqDspUb/ALq9W91GXWjyC2a7t5VmjS39YlPhsm0MQFHPUkZbH7Iz3GcxZWnm+2YBQD05rAJJMviBpiQo6nv/AHqgMWclFwpPU9SKtPh+GxY5Zjnnk+QpgqqBlhg9D3rJgLp5on2+FHs45Pme5ojTraO4zubgdgeTQk+1GARgwxVtphgWeYRBSOBwcZo2Y14rGK2QMBub9pqq8MeDYMOciQfDDD86db6O4LhSfZIGSetUCRzFbqoxtd+n8P5VWL0wMCkjw7Z8zSrQyhY7+SDjpSpeb+hLZmrdR4EcIhRVyQsShQPkKj63Cz7PGQn3NWHpTYuWxngH8ahY3GLsbmIVm7E9e386pZjsyZzb+JGMOeQG6Gsm5SZn8aVVR2PGSOtbMB3W6qQMFeaybn7GQReIDECSPZ3FT9Rmudu2Va0BvIyBgzkk5BK9/jUSjPgidS7HkFucUpZWeSSRQQu7AHupvGeQbN5YZ70L2CiUayPOkah3djhVHc+QFdFZw63BaQRx294qxuzL9l90ny4788dDXPvMrSK20ZUc4xzUGcNFgJgBvxpJbGVI2JrDWbqb/era7kVpDI25P1jgE/HgfQVcmk6qrus8V0AYvDOFJymc7fhkA4rm5oVRlkYc8591TikXxEMoDKo4yOlHZlRvyW2vP4irHfFJlxIBkCQdPaHfismeCW1laO5heF9udpHahDJl2OPa7HrxVYlAycc5oqzNhLSHPupmlJHWqCWPLGkCNhYgHPAGeR76IKLfEIIz8as8dmO4lfLmhpSQBxgdqnaRrM2ZH2hT0x1rAD7VpXkypZUxliBjNER3TBB7C+zIR+FWhgsJwcjGOKA3FVdev2hPyp46QJaD/XWUsFVMZ70qjHYO67sg56EA9PpT1L3sf2TcjGitvDlkkIIJAXG0gcADv8KGi04RyRtuyQwJqUF48kcjCMKF5qEN+7yKu0AE45ziuh/gy/TsLYHw0znbgU+r6LE1hBeQufEdiZV8gSQp+qP/AC86ChubhACEj4H7RrrJ7rCQaPMiLK9nvLg/dYYVgfcGQt/DXJkk09HSlZy2i6BHeeP6zJtVEO0p3c5CD5kfQGsu0tYpplaNSyA8ljkfCu7tc6fYRWcqIkzgzXKs2GXad2Mfw4+KnzrkrOSeS/FlbwASFjGN3ABHn7hg0sZW2FxQS+kE6fLc7cyEjwkx7JUZ3EnjHfA77W8qzdI0q41O7W2tVDyM33WYAcZyevSuylBWZBDLCLdYirRS+IHJ7cbcdlzz1LedcNdXJ0TXoyniK0UiyRFgQSOCufwPzFJFzlaQXxVHX696B3FpEZbe4t23IBtdyCSPgP8A7msF9DtrBUXVrpop5OixkAL9Qd3Ufs/Hg123pl6baRFEbaMXHj+Hnb4XsjkjrnzBrgbjVVlKwa5bSRSgbt8kZVsHABI4PQDkeQ4NJgeaUE5qjS4Xoz7y18C6eBJY5grBQ6Nnd9M89sZPPnRsel2dvt/Sd40cpHEUfbnzwfwx5E0xtRp/pBbQs3slgQCeh5UZ88MOveo3tmiXs9ze71tt48ILw0owNqL5DGMnt8a6e9E+iV3p6rAJrSZJrdv19pGMdfx56H3Yqi1shcWjtHITOrhVT9Vsgnk9unf+WaN0HxL6a4kk8NbcRhRGPZVBnoP4PEo+40PU/Ry3v1uFEU6RpKMMpx9m56fwmlutG8nJF38QI4Ktu2sCOV9xo+6tI7a78BHZkZc7nGDnp0B91Wy+BrEAuIlSK8Qe2gPD/wBvI9uh4was1BHbVHO3aQCv0duKpexa1ZK2jeBSfELLjG3FWBY3Y4bAJUkdTxnP41VHu65z2qcQwkgzjH51r3onItklYtkAU1UlwMAdhSoKEa6E4oxIiogkC45GBzStUBcY65FG39vHDN4SQkqDjr5Y5qy1i9pM27E5HQj866Iu0N5NqDClWIyAckHv7qNv9T9Z1gagIVRolDKm7cOuTzjvk/Wq1iBGPV5f+b+9Rks5nVmgsriTAw2wbuPlUUqdsvdor1XVAuom7eLMXGY95+50xn4d/nQ+n65Bb3dzfyWcckkpcqrPxHu5PbkYyp6ZBPSqNRQMjRzQyiTGNp4P0rKsrbxGcJbTSkDooJOK1R7A20PPM1xKzy4LOSxJHLE9ya0dV9U1zTbaeETrqls2LlmUGDwyfvFuq+0SSDxyeayp7e4RmPqVzEhI5aIrj50LHFNIT4UTSY52qpYj6UFGtozdnYekPo/FqYa+j9IdASQIV8D14tuwWY4fYAfvYA/nWda61byQpLqGnJc3cSgrKGVctnJJyrc55PYkk4BJJw0QlnV1CuMAoQc0Zp2k3d0YTBbyP48/gxEITubg4Hv5HFG6jsFfQPf3rX7NdTgZb2AoJwAMYHn8zWimurJBHHqVklyEyVcn2sk89vwIz1OTzUz6JagIrQvbOrXc7xQoQQXwcZ+fGPOlp2iS3epNpu9YZ9zRnxcgBgCdp8skY7Ad6DlENMqvdZ9Yg8C1gS2hwRsQ8nnPYDyHv4GSajLrLTi6NzCu64AUeG20JhSvTBz1z1HNZMkckbYZSreVSWNpMBmFbjGjWwuzDRSLIhKspyGHatOaSGVkaNSpCYZeoLZJyPrQUQZEAIx5e8VejNxx8yKlN2wbCo9pjB6t5Y4+tTjQPFKSMEKP/cKjDGZFBAAI7dqKgj9iYMVzszjGM8/2psTuQs18QE48qVTcYYj2fnT1ZLRM527lkaOOUFgQTnnk5x+VE6Pft6ykUmdrMMMT05FQ12W0dkOmRzR2zL0m+9kde54+dD6L7d/EpAZfI08X8UHyemafB40saEgBmwTnoPOpekHpOulTLp9rDhVxnCq3PTGDxnPGcZJHXGAB9PumikRiu4KckeY71n+k+j3t7qsOo6ZslG1CfbCFWDE7st7PX9XOQe2Oai386ZZP4kdfuZ7zRmuZdPmjlixskaMrs8zjHHX4c5xmgPQ6SS5uLwMQ0gRfvbQrHnGe3lWvq01zaej1xDqMqyXUxKhUQLtBxnOAM8Z5xgkjGcE1mehVo0lzqBh3bjH8MHDAc9ucVO6hJDpXJMM1NtV9SZLqOFYCQD4fh9e33eay/RySdLa+a3jLSBAUUDO4hJCBjv8ACultPR8TJI2s6i1pApUKSwkyxJA6E4+JxWZoNtY21hcM0pkljkLTnZuQRhXwyg+YyeaV5I00Hg2zN1ue4l0OGa/jWO5EoQZByAd304CnHbg8bqC0hJJ7mDwbpR9p7SR53oqjczgY6Y4z5iui9J9L0a9s7e+07UZZI/ZVywYrAnA5HYjjIHu7mszQobXSrGbVmuVd87IoijKZMN90fEgc+SMPPDxnGcLoRpxkF+kd608MN0kzP6qzwueyc42j3KeAfJlofQi5klljniheOJ3Vnch2JU/dPnzmoaZfaVfNJpgtHsFlDM5LtJvIU5XByQe/xUVXa28ltdtFKpVwpHTG7gjI8xRUElx6Nzd2aF/NdXU2oQ6ijLbxO/glwwwAT0z1wADkeWO9cppk7/pG1I4PjoP9Qro72Magt5bRbUaOU5VRtDjOFz/IfHH7Rxn2tnbiaMWjTl49kheSPDK6tztw3C9OuTRhVbNLsLGr3Q+wfc0exNyuxzyoJ7+/vmoXEKrIHQEI/IB7dO3br+NKS0ury6ecuZTJt3SNJuJIUA55JJyD76KmiH2cYxJs4Y574A5+n88dq53XKkPWgiztwUVx1x0pyGikcbf+yfr34/tWho0OSEPPHeoawgiuDjpsIH0NLiy1mUTZIfxtmIu+QblUEfClTJKVBAbHNKvQT0cj7MKe5EjgSW6kE8hECr9AMe+iLRYoZ1kRArA9RWcbjEasR17VOG6LvwMY55qhjp4NVUsoXOD3J6VTdPuv0nRmEm0DckjAkcnHB+NYgk8uKdrnwn3Ohb2e/wAKDikFNs07OaGSDw2hkKsSe/U/OjXQWMbS2xaKQ+zuVj5/2rIh1lYLdGWP3c0bPqkGo2jmBHR4irMGx3yOKnxalspa4/pVc6ldspBuZCPJmz+NYiXVw24GZ8MMNg43DyPnWgmyRwJZBGvdypbHyFDJaWA6avF87eTn+VVkop9EouVdjR3lysbxC4cRv95RgA1MTzeGqtcTMi52xlztGfIdBUfV7QnjVbcD3xS//GnEFuucapaNxx7M3/TofHwgvk/IFFcSRSFlmkRweGVsH61oLq16yyyNeTmUrw5kO7z61Stja4y2r2Gc9Ck//TquaOKIMIrmG4yh5iDgL/zKKKqzbKjf3fjCb1mbxQSQ4kIbJ681T4rmUylmMmd2/Jznzz51GnjQPIFLqmf1n6ChRjcsb+8niPrF7cSBjyJJmOfqa9I9G/8AZ4dV0u3v2vyiTIHCrEDj55rx5Jiu3B4Br2H0F/2l2VvZado3qc4kSNIt4K7ScAZ65615P/Qx50lLD/v9HXhlF6ZsP6HfoeLfDcPIQf1lArl9fiaO6Higs2Dj6dK6y79NU1WeWztrWXxVYrliMZBrl/SFpPWE8dMFumDmvP8AQvKvVpZDpzpPA6OQYSBj7Bp6n6xnJ2mlX0SpI81rZysh+zVfcKe2J34UZLcAU0vBH7q/gKjE21gehBBz86qxUac1pcxRySSQOBHy2MHA8/51ZeWcr6bHcBQFKKx9oZwfdQU89xKpG5tnTCk89Pyoq4nik0y1igtBFOqFJXTJMvPBI9w4qT5Oii4qzPcOttGGQ7SSA3nzWpHpjwacL7kodvGOMH51kOHBIkDZ64biiY7tlgMAzt3BvvUz5WqF1TsNswLm5WB3ESsrEyEZC4Unn6Va+gR2tkbi6uCrqiMFGMEsX6HPIwmRjrmsp5mXJVip6ZBxV1lLIYpBLeTRWwXDIrn7THRQM+8/DNNK3uxY0l0aVxo8Wm28lxK6zIVIxjrk+xj94HcCOwNA2umJLbrcm4CrhtyBcsNoJbjvxtx+97jWfLPJICGkYqcezuOOBgfQcVatzJ7DxyOjoc+wxAB/a+NDdBtWaB0RGs7i8iuT4KRLKhdACQS4wefNCBjPUdqp1HTzplzNbPIHdFOSBx14x58fl2oSS+u3Z991M28YbMhO4YIwfkSPmadpZZdxmkdzgnLtnqcn61kne2Z0DHrTGnPWmNEAqL01mju4pF6hx+NCZq63/WOSMCg1aoK7O/0W89Uu5pCQGZiQcg9TRmq6glyyLuBbPHNcLpty5co5+HatuEiSWM5/WHeuGPoY+8snkvP1L9txoobAJx0NPVEUqNGpJHTzpV3cGQ5WYFxxKR5AfgKromWCZnLLDIQe4QmqdpVvaGCOxFM0KjQgtyQCikiiktZF6KflRelAywoT1IGcCugtLFnI3RttP6208VyTbTOiJw2p+y0eQc4PWgi48hXrNxF6L2hRXuUDHJbxoxn/AFChL6X0T8Jmea0dQM4URE9uynNduLFcE3JHJmzOM2lFs8w3DyqJOa7tD6KuC261I8gjgj/Qa5f0hNgdQP6LCer7BjaDjPfqBRnBR82aE3LuNGVT58qWD5V01tY6FP6PwzTXgivgGDRjGcgnB/CkSsduvBzca73ClguTjc3QUzey7DIbBxkdDTuu3io8UAizSp8cZ7edJV3ECsYbNF26FoDtXJLVOGJ4SwHhtngh1rotBktwFSa32McksI9y/nSyarsZJp9GBbQlZgSma2YH2srbejD8aWtzqLpYoFHhgZ3hNu75UJC/trz3FBN2hJbTK4yQuBgc09UO5jmmQHhZGH86VVtgXR13+HdMBBELgn/xX/Ok3o5pjHLRSE++ZvzpUqAQm2022tNptxIhHQhzkUarSAYE03+YaVKptIewW502O6fdLPdZHTE7D+tUfoWAnm4vP/Uv+dKlTLSFltjpo9vGcrLdZ8zOx/rVE/o1p88jSSmd3bqxlJJpUqC7C+iv/CmmeU3+ZU09HbNFCpLdKozgCYgClSpgDN6OWZPMt0f/ADjTf4csv+Ldf5xpqVExbFo0UKERXN2oz/xakNJgP3pJW/eYH+lKlUZIqnojLotrKdzPPnGOJSKjHo8EZ9iW4A8vEzSpVjFU2iW0r7nknJA7sPypfoS2yMPNx/3h+VKlTokypvR+03ufEn9pifvDv8qalSqgD//Z" alt="Golden Mirror Accent" loading="lazy"></div>
+      <div class="cat-label" data-en="Golden" data-am="ወርቃማ">Golden</div>
+    </div>
+    <div class="cat-item" data-filter="white">
+      <div class="cat-swatch"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCkJnjxZaPWuqVG0e-LPRo1AD-aoZRmy4_8wfjFke9YA&s=10" alt="White Wall Panel" loading="lazy">  </div>
+      <div class="cat-label" data-en="White" data-am="ነጭ">White</div>
+    </div>
+    <div class="cat-item" data-filter="black">
+      <div class="cat-swatch sw-black"></div>
+      <div class="cat-label" data-en="Black" data-am="ጥቁር">Black</div>
+    </div>
+    <div class="cat-item" data-filter="custom">
+      <div class="cat-swatch sw-custom"></div>
+      <div class="cat-label" data-en="Custom" data-am="ብጁ">Custom</div>
+    </div>
+  </div>
+
+  <!-- ================= WINDOW GLASS ================= -->
+  <div class="section-block" data-section="window">
+    <div class="section-head">
+      <div class="section-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9fd7e0" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/><line x1="3" y1="12" x2="21" y2="12"/></svg>
+      </div>
+      <div>
+        <div class="section-title" data-en="Window Glass Stickers" data-am="የመስኮት መስታወት ስቲከር">Window Glass Stickers</div>
+        <div class="section-sub" data-en="PRIVACY & DECOR FILMS" data-am="ግላዊነት እና ማስዋቢያ">PRIVACY &amp; DECOR FILMS</div>
+      </div>
+    </div>
+
+    <div class="card-list">
+
+      <div class="peel-card" data-cat="frosted" data-name="frosted privacy film matte finish window" data-img="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTW4b-vvWqchdUX_YuA9sKygLab_rmthBzTVNK4yf01sA&s=10">
+        <div class="peel-thumb thumb-frosted frost-noise">
+          <div class="peel-corner"></div><div class="zoom-hint"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#eef1f3" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg></div>
+          <img class="peel-thumb-img" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTW4b-vvWqchdUX_YuA9sKygLab_rmthBzTVNK4yf01sA&s=10" alt="Frosted Privacy Film" loading="lazy">
+        </div>
+        <div class="peel-body">
+          <div class="peel-info">
+            <div class="peel-name" data-en="Frosted Privacy Film" data-am="ፍሮስት የግላዊነት ፊልም">Frosted Privacy Film</div>
+            <div class="peel-desc" data-en="Matte frosted finish, full light diffusion" data-am="ማት ፍሮስት ፍጻሜ፣ ሙሉ ብርሃን ማሰራጨት">Matte frosted finish, full light diffusion</div>
+          </div>
+          <div class="peel-price">
+            <div><span class="price-num">450</span><span class="price-unit">ETB/m²</span></div>
+            <div class="tap-hint" data-en="tap to view" data-am="ለማየት ይንኩ">tap to view</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="peel-card" data-cat="golden" data-name="golden border decorative window accent" data-img="https://lag.azureedge.net/w2p-cms-1/sliderImages/20-08-21-window-decal-slider-window-graphic-riot.jpg">
+        <div class="peel-thumb thumb-golden">
+          <div class="peel-corner"></div><div class="zoom-hint"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#eef1f3" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg></div>
+          <img class="peel-thumb-img" src="https://lag.azureedge.net/w2p-cms-1/sliderImages/20-08-21-window-decal-slider-window-graphic-riot.jpg" alt="Golden Line Border" loading="lazy">
+        </div>
+        <div class="peel-body">
+          <div class="peel-info">
+            <div class="peel-name" data-en="Golden Line Border" data-am="ወርቃማ ድንበር መስመር">Golden Line Border</div>
+            <div class="peel-desc" data-en="Decorative gold-foil border accent" data-am="ያጌጠ የወርቅ ድንበር">Decorative gold-foil border accent</div>
+            <div class="badge-popular">✦ <span data-en="POPULAR" data-am="ተወዳጅ">POPULAR</span></div>
+          </div>
+          <div class="peel-price">
+            <div><span class="price-num">600</span><span class="price-unit">ETB/m²</span></div>
+            <div class="tap-hint" data-en="tap to view" data-am="ለማየት ይንኩ">tap to view</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="peel-card" data-cat="black" data-name="black tint solid privacy window" data-img="https://i.etsystatic.com/24933119/r/il/26a968/6044423729/il_fullxfull.6044423729_63d1.jpg">
+        <div class="peel-thumb thumb-black">
+          <div class="peel-corner"></div><div class="zoom-hint"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#eef1f3" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg></div>
+          <img class="peel-thumb-img" src="https://i.etsystatic.com/24933119/r/il/26a968/6044423729/il_fullxfull.6044423729_63d1.jpg" alt="Black Tint Sticker" loading="lazy">
+        </div>
+        <div class="peel-body">
+          <div class="peel-info">
+            <div class="peel-name" data-en="Black Tint Sticker" data-am="ጥቁር ቀለም ስቲከር">Black Tint Sticker</div>
+            <div class="peel-desc" data-en="Solid black privacy & heat-block tint" data-am="ጠንካራ ጥቁር ግላዊነት ፊልም">Solid black privacy &amp; heat-block tint</div>
+          </div>
+          <div class="peel-price">
+            <div><span class="price-num">500</span><span class="price-unit">ETB/m²</span></div>
+            <div class="tap-hint" data-en="tap to view" data-am="ለማየት ይንኩ">tap to view</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="peel-card" data-cat="white" data-name="white floral pattern window film" data-img="https://images-na.ssl-images-amazon.com/images/I/81QnF1erjhL._AC_UL495_SR435,495_.jpg">
+        <div class="peel-thumb thumb-white">
+          <div class="peel-corner"></div><div class="zoom-hint"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#eef1f3" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg></div>
+          <img class="peel-thumb-img" src="https://images-na.ssl-images-amazon.com/images/I/81QnF1erjhL._AC_UL495_SR435,495_.jpg" alt="White Pattern Film" loading="lazy">
+        </div>
+        <div class="peel-body">
+          <div class="peel-info">
+            <div class="peel-name" data-en="White Pattern Film" data-am="ነጭ ንድፍ ፊልም">White Pattern Film</div>
+            <div class="peel-desc" data-en="Elegant white floral etched pattern" data-am="ውብ ነጭ የአበባ ንድፍ">Elegant white floral etched pattern</div>
+          </div>
+          <div class="peel-price">
+            <div><span class="price-num">550</span><span class="price-unit">ETB/m²</span></div>
+            <div class="tap-hint" data-en="tap to view" data-am="ለማየት ይንኩ">tap to view</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= DOOR GLASS ================= -->
+  <div class="section-block" data-section="door">
+    <div class="section-head">
+      <div class="section-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#cda44e" stroke-width="1.6"><rect x="5" y="2" width="14" height="20" rx="1.5"/><circle cx="15" cy="12" r="0.8" fill="#cda44e"/></svg>
+      </div>
+      <div>
+        <div class="section-title" data-en="Door Glass Stickers" data-am="የበር መስታወት ስቲከር">Door Glass Stickers</div>
+        <div class="section-sub" data-en="ENTRY & INTERIOR DOORS" data-am="መግቢያ እና ውስጣዊ በሮች">ENTRY &amp; INTERIOR DOORS</div>
+      </div>
+    </div>
+
+    <div class="card-list">
+
+      <div class="peel-card" data-cat="frosted" data-name="frosted door film full coverage privacy" data-img="https://image.made-in-china.com/203f0j00EWugnpQzVCoH/China-Manufacturer-Frosted-Film-Decoration-Film-Window-Film-Privacy-Window-Glass-Film.webp">
+        <div class="peel-thumb thumb-frosted frost-noise">
+          <div class="peel-corner"></div><div class="zoom-hint"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#eef1f3" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg></div>
+          <img class="peel-thumb-img" src="https://image.made-in-china.com/203f0j00EWugnpQzVCoH/China-Manufacturer-Frosted-Film-Decoration-Film-Window-Film-Privacy-Window-Glass-Film.webp" alt="Frosted Door Film" loading="lazy">
+        </div>
+        <div class="peel-body">
+          <div class="peel-info">
+            <div class="peel-name" data-en="Frosted Door Film" data-am="ፍሮስት የበር ፊልም">Frosted Door Film</div>
+            <div class="peel-desc" data-en="Full frosted coverage, soft light glow" data-am="ሙሉ ፍሮስት ሽፋን">Full frosted coverage, soft light glow</div>
+          </div>
+          <div class="peel-price">
+            <div><span class="price-num">400</span><span class="price-unit">ETB/m²</span></div>
+            <div class="tap-hint" data-en="tap to view" data-am="ለማየት ይንኩ">tap to view</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="peel-card" data-cat="golden" data-name="golden logo decal custom shop door" data-img="https://i.etsystatic.com/9077782/r/il/718be8/6485008969/il_fullxfull.6485008969_owtt.jpg">
+        <div class="peel-thumb thumb-golden">
+          <div class="peel-corner"></div><div class="zoom-hint"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#eef1f3" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg></div>
+          <img class="peel-thumb-img" src="https://i.etsystatic.com/9077782/r/il/718be8/6485008969/il_fullxfull.6485008969_owtt.jpg" alt="Golden Logo Decal" loading="lazy">
+        </div>
+        <div class="peel-body">
+          <div class="peel-info">
+            <div class="peel-name" data-en="Golden Logo Decal" data-am="ወርቃማ አርማ ማስቀመጫ">Golden Logo Decal</div>
+            <div class="peel-desc" data-en="Custom gold logo application for shops" data-am="ብጁ የወርቅ አርማ ለሱቆች">Custom gold logo application for shops</div>
+          </div>
+          <div class="peel-price">
+            <div><span class="price-num">800</span><span class="price-unit">ETB fixed</span></div>
+            <div class="tap-hint" data-en="tap to view" data-am="ለማየት ይንኩ">tap to view</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="peel-card" data-cat="black" data-name="black border strip framing door" data-img="https://down-ph.img.susercontent.com/file/sg-11134201-7qvcy-liq6img7bwgdb1">
+        <div class="peel-thumb thumb-black">
+          <div class="peel-corner"></div><div class="zoom-hint"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#eef1f3" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg></div>
+          <img class="peel-thumb-img" src="https://down-ph.img.susercontent.com/file/sg-11134201-7qvcy-liq6img7bwgdb1" alt="Black Border Strip" loading="lazy">
+        </div>
+        <div class="peel-body">
+          <div class="peel-info">
+            <div class="peel-name" data-en="Black Border Strip" data-am="ጥቁር ድንበር ስትሪፕ">Black Border Strip</div>
+            <div class="peel-desc" data-en="Sleek black accent framing for glass doors" data-am="ውብ ጥቁር ማዕቀፍ">Sleek black accent framing for glass doors</div>
+          </div>
+          <div class="peel-price">
+            <div><span class="price-num">350</span><span class="price-unit">ETB/m²</span></div>
+            <div class="tap-hint" data-en="tap to view" data-am="ለማየት ይንኩ">tap to view</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= WALL GLASS ================= -->
+  <div class="section-block" data-section="wall">
+    <div class="section-head">
+      <div class="section-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f3f1ea" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><rect x="3" y="9" width="18" height="6"/></svg>
+      </div>
+      <div>
+        <div class="section-title" data-en="Wall Glass Stickers" data-am="የግድግዳ መስታወት ስቲከር">Wall Glass Stickers</div>
+        <div class="section-sub" data-en="PARTITIONS & FEATURE WALLS" data-am="ክፍልፋዮች እና ግድግዳዎች">PARTITIONS &amp; FEATURE WALLS</div>
+      </div>
+    </div>
+
+    <div class="card-list">
+
+      <div class="peel-card" data-cat="frosted" data-name="frosted wall panel decorative partition" data-img="https://www.oblprint.com/items/xnjo3tg0ge55nn6/product-main.webp">
+        <div class="peel-thumb thumb-frosted frost-noise">
+          <div class="peel-corner"></div><div class="zoom-hint"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#eef1f3" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg></div>
+          <img class="peel-thumb-img" src="https://www.oblprint.com/items/xnjo3tg0ge55nn6/product-main.webp" alt="Frosted Wall Panel" loading="lazy">
+        </div>
+        <div class="peel-body">
+          <div class="peel-info">
+            <div class="peel-name" data-en="Frosted Wall Panel" data-am="ፍሮስት የግድግዳ ፓነል">Frosted Wall Panel</div>
+            <div class="peel-desc" data-en="Decorative frosted glass for office partitions" data-am="ለቢሮ ክፍልፋይ ፍሮስት መስታወት">Decorative frosted glass for office partitions</div>
+          </div>
+          <div class="peel-price">
+            <div><span class="price-num">500</span><span class="price-unit">ETB/m²</span></div>
+            <div class="tap-hint" data-en="tap to view" data-am="ለማየት ይንኩ">tap to view</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="peel-card" data-cat="golden" data-name="golden mirror accent feature wall" data-img="https://shop.idecorwala.com/cdn/shop/products/G019_4FT_1200x.jpg?v=1672126028">
+        <div class="peel-thumb thumb-golden">
+          <div class="peel-corner"></div><div class="zoom-hint"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#eef1f3" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg></div>
+          <img class="peel-thumb-img" src="https://shop.idecorwala.com/cdn/shop/products/G019_4FT_1200x.jpg?v=1672126028" alt="Golden Mirror Accent" loading="lazy">
+        </div>
+        <div class="peel-body">
+          <div class="peel-info">
+            <div class="peel-name" data-en="Golden Mirror Accent" data-am="ወርቃማ መስተዋት ማስዋቢያ">Golden Mirror Accent</div>
+            <div class="peel-desc" data-en="Gold-tone mirror sticker for feature walls" data-am="ወርቃማ መስተዋት ስቲከር">Gold-tone mirror sticker for feature walls</div>
+            <div class="badge-popular">✦ <span data-en="POPULAR" data-am="ተወዳጅ">POPULAR</span></div>
+          </div>
+          <div class="peel-price">
+            <div><span class="price-num">700</span><span class="price-unit">ETB/m²</span></div>
+            <div class="tap-hint" data-en="tap to view" data-am="ለማየት ይንኩ">tap to view</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="peel-card" data-cat="custom" data-name="custom design print any size logo mural" data-img="https://www.halfpriceprint.ae/cdn/shop/files/frosted-glass-sticker.webp?v=1754050498">
+        <div class="peel-thumb thumb-custom">
+          <div class="peel-corner"></div><div class="zoom-hint"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#eef1f3" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg></div>
+          <img class="peel-thumb-img" src="https://www.halfpriceprint.ae/cdn/shop/files/frosted-glass-sticker.webp?v=1754050498" alt="Custom Design Print" loading="lazy">
+        </div>
+        <div class="peel-body">
+          <div class="peel-info">
+            <div class="peel-name" data-en="Custom Design Print" data-am="ብጁ ንድፍ ህትመት">Custom Design Print</div>
+            <div class="peel-desc" data-en="Any design, logo or mural — any size" data-am="ማንኛውም ንድፍ ወይም አርማ">Any design, logo or mural — any size</div>
+            <div class="badge-quote" data-en="Custom quote" data-am="ብጁ ዋጋ">Custom quote</div>
+          </div>
+          <div class="peel-price">
+            <div class="tap-hint" data-en="tap to view" data-am="ለማየት ይንኩ">tap to view</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="foot">
+    <span data-en="Made with" data-am="በ">Made with</span> ♦ <span data-en="for every pane of glass" data-am="ፍቅር ለእያንዳንዱ መስታወት ተሠራ">for every pane of glass</span>
+  </footer>
+
+</div>
+
+<!-- Lightbox / enlarged image modal -->
+<div class="img-modal" id="imgModal">
+  <div class="img-modal-backdrop" id="modalBackdrop"></div>
+  <div class="img-modal-content">
+    <button class="img-modal-close" id="modalClose">&times;</button>
+    <div class="modal-thumb-large" id="modalThumbLarge">
+      <div class="modal-corner"></div>
+      <img id="modalImg" src="" alt="">
+    </div>
+    <div class="modal-info">
+      <div class="modal-title" id="modalTitle"></div>
+      <div class="modal-desc" id="modalDesc"></div>
+      <div class="modal-price-row">
+        <div><span class="modal-price-num" id="modalPriceNum"></span><span class="modal-price-unit" id="modalPriceUnit"></span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Category filtering
+  const catItems = document.querySelectorAll('.cat-item');
+  const cards = document.querySelectorAll('.peel-card');
+  const sections = document.querySelectorAll('.section-block');
+
+  catItems.forEach(item => {
+    item.addEventListener('click', () => {
+      catItems.forEach(i => i.classList.remove('active'));
+      item.classList.add('active');
+      const filter = item.getAttribute('data-filter');
+      applyFilters(filter, document.getElementById('searchInput').value);
+    });
+  });
+
+  function applyFilters(catFilter, searchText){
+    const q = searchText.trim().toLowerCase();
+    sections.forEach(section => {
+      let anyVisible = false;
+      section.querySelectorAll('.peel-card').forEach(card => {
+        const matchesCat = catFilter === 'all' || card.getAttribute('data-cat') === catFilter;
+        const matchesSearch = q === '' || card.getAttribute('data-name').includes(q);
+        const visible = matchesCat && matchesSearch;
+        card.style.display = visible ? 'flex' : 'none';
+        if(visible) anyVisible = true;
+      });
+      section.style.display = anyVisible ? 'block' : 'none';
+    });
+  }
+
+  document.getElementById('searchInput').addEventListener('input', (e) => {
+    const activeCat = document.querySelector('.cat-item.active').getAttribute('data-filter');
+    applyFilters(activeCat, e.target.value);
+  });
+
+  // Whole card click -> large lightbox
+  const imgModal = document.getElementById('imgModal');
+  const modalThumbLarge = document.getElementById('modalThumbLarge');
+  const modalImg = document.getElementById('modalImg');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalDesc = document.getElementById('modalDesc');
+  const modalPriceNum = document.getElementById('modalPriceNum');
+  const modalPriceUnit = document.getElementById('modalPriceUnit');
+
+  const thumbColorClasses = ['thumb-frosted','thumb-golden','thumb-white','thumb-black','thumb-custom'];
+
+  document.querySelectorAll('.peel-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const thumb = card.querySelector('.peel-thumb');
+      const colorClass = thumbColorClasses.find(c => thumb.classList.contains(c)) || 'thumb-frosted';
+      const isFrosted = thumb.classList.contains('frost-noise');
+
+      modalThumbLarge.className = 'modal-thumb-large ' + colorClass + (isFrosted ? ' frost-noise' : '');
+
+      const imgEl = thumb.querySelector('img');
+      if (imgEl) {
+        modalImg.src = card.getAttribute('data-img') || imgEl.src;
+        modalImg.alt = imgEl.alt;
+      }
+
+      const nameEl = card.querySelector('.peel-name');
+      const descEl = card.querySelector('.peel-desc');
+      modalTitle.textContent = nameEl ? nameEl.textContent : '';
+      modalDesc.textContent = descEl ? descEl.textContent : '';
+
+      const priceEl = card.querySelector('.price-num');
+      const unitEl = card.querySelector('.price-unit');
+      modalPriceNum.textContent = priceEl ? priceEl.textContent : '';
+      modalPriceUnit.textContent = unitEl ? unitEl.textContent : '';
+
+      imgModal.classList.add('open');
+    });
+  });
+
+  function closeModal(){ imgModal.classList.remove('open'); }
+  document.getElementById('modalClose').addEventListener('click', (e) => { e.stopPropagation(); closeModal(); });
+  document.getElementById('modalBackdrop').addEventListener('click', closeModal);
+  document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeModal(); });
+
+  // Language toggle (EN / Amharic)
+  const langButtons = document.querySelectorAll('.lang-toggle button');
+  langButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      langButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const lang = btn.getAttribute('data-lang');
+      document.querySelectorAll('[data-en]').forEach(el => {
+        const text = lang === 'am' ? el.getAttribute('data-am') : el.getAttribute('data-en');
+        if(text) el.textContent = text;
+      });
+      const searchInput = document.getElementById('searchInput');
+      const ph = lang === 'am' ? searchInput.getAttribute('data-ph-am') : searchInput.getAttribute('data-ph-en');
+      if(ph) searchInput.setAttribute('placeholder', ph);
+    });
+  });
+</script>
+
+</body>
+</html>
